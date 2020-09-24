@@ -1085,9 +1085,19 @@ class TemplateProcessor
     {
         $results = array();
         for ($i = 1; $i <= $count; $i++) {
-            $results[] = preg_replace('/\$\{(.*?)\}/', '\${\\1#' . $i . '}', $xmlBlock);
+            $results[] = preg_replace_callback(
+                '/\$\{(.*?)\}/',
+                function ($matches) use ($i)  {
+                    if (stristr($matches[0], ':') == true) {
+                        $matches[0] = preg_replace('/\$\{(.*?)\:/', '\${\\1#' . $i . ':', $matches);
+                    } else {
+                        $matches[0] = preg_replace('/\$\{(.*?)\}/', '\${\\1#' . $i . '}', $matches);
+                    }
+                    return ($matches[0][0]);
+                },
+                $xmlBlock
+            );
         }
-
         return $results;
     }
 
